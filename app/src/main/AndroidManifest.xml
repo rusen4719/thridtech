@@ -2,14 +2,27 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.techtown.thridtech">
 
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Thridtech">
-        <activity android:name=".LoginActivity"
+        android:theme="@style/Theme.Thridtech"
+        android:usesCleartextTraffic="true">
+        <activity
+            android:name=".Home"
+            android:exported="true" />
+        <activity
+            android:name=".find_account"
+            android:exported="true" />
+        <activity
+            android:name=".create_account"
+            android:exported="true" />
+        <activity
+            android:name=".LoginActivity"
             android:windowSoftInputMode="stateHidden|adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -17,8 +30,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity">
-        </activity>
+        <activity android:name=".MainActivity" />
     </application>
 
 </manifest>
