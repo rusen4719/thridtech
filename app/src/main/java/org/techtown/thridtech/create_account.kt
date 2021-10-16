@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.util.StringBuilderPrinter
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
@@ -17,6 +18,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.net.URISyntaxException
+import kotlin.reflect.typeOf
 
 private var mBinding: ActivityCreateAccountBinding? = null
 private val binding get() = mBinding!!
@@ -33,23 +35,6 @@ class create_account : AppCompatActivity() {
         mBinding = ActivityCreateAccountBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-/*        val retrofit = Retrofit.Builder()
-            .baseUrl(url)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-
-        var server = retrofit?.create(APIInterface::class.java)
-
-        server?.postRequest("id1","password")?.enqueue(object :Callback<ResponseDC>{
-            override fun onResponse(call: Call<ResponseDC>, response: Response<ResponseDC>) {
-                Log.d("TAG", response?.body()?.msg.toString())
-            }
-
-            override fun onFailure(call: Call<ResponseDC>, t: Throwable) {
-                Log.d("TAG", "실패")
-            }
-        })*/
-
         binding.btnBack.setOnClickListener {
             finish()
         }
@@ -57,11 +42,13 @@ class create_account : AppCompatActivity() {
         binding.btnOverlap.setOnClickListener {
             val address = binding.edtAddress.text.toString()
 
+            Log.d("TAG", address)
+
             var layoutInflater = LayoutInflater.from(applicationContext).inflate(R.layout.view_holder_toast,null)
             var text : TextView = layoutInflater.findViewById(R.id.textViewToast)
 
-            if(address.trim().equals("") || address.trim().length < 5) {
-                text.text = "5자 이상 입력해주세요"
+            if(address.trim().equals("") || address.trim().length < 4) {
+                text.text = "4자 이상 입력해주세요"
                 var toast = Toast(applicationContext)
                 toast.view = layoutInflater
                 toast.setGravity(0,0,0)
@@ -69,6 +56,7 @@ class create_account : AppCompatActivity() {
 
                 passOverlap = 0
             } else {
+                Log.d("TAG", "1")
                 val retrofit = Retrofit.Builder()
                     .baseUrl(url)
                     .addConverterFactory(GsonConverterFactory.create())
@@ -76,22 +64,39 @@ class create_account : AppCompatActivity() {
 
                 var server = retrofit?.create(APIInterface::class.java)
 
-                server?.getRequest(address)?.enqueue(object :Callback<OverlapID>{
+                var jsonInfo = JsonObject()
+                jsonInfo.addProperty("user_id", address)
+
+                server?.overlap(jsonInfo)?.enqueue(object :Callback<OverlapID>{
                     override fun onResponse(call: Call<OverlapID>, response: Response<OverlapID>) {
-                        text.text= response.body()?.msg
+                        if (response.body()?.data!!) {
+                            Log.d("TAG", response.body()?.msg.toString())
+                            Log.d("TAG", response.body()?.data.toString())
+                            Log.d("TAG", response.toString())
 
-                        Log.d("TAG", response.body()?.msg.toString())
+                            text.text= "사용 가능합니다."
 
-                        var toast = Toast(applicationContext)
-                        toast.view = layoutInflater
-                        toast.setGravity(0,0,0)
-                        toast.show()
+                            var toast = Toast(applicationContext)
+                            toast.view = layoutInflater
+                            toast.setGravity(0,0,0)
+                            toast.show()
 
-                        passOverlap = 1
+                            passOverlap = 1
+                        } else {
+                            text.text= "이미 있는 아이디 입니다."
+
+                            var toast = Toast(applicationContext)
+                            toast.view = layoutInflater
+                            toast.setGravity(0,0,0)
+                            toast.show()
+
+                            passOverlap = 0
+                        }
+
                     }
 
                     override fun onFailure(call: Call<OverlapID>, t: Throwable) {
-                        TODO("Not yet implemented")
+                        Log.d("TAG", t.toString())
                     }
                 })
             }
@@ -126,22 +131,42 @@ class create_account : AppCompatActivity() {
                 var server = retrofit?.create(APIInterface::class.java)
 
                 var jsonInfo = JsonObject()
-                jsonInfo.addProperty("user_id", binding.edtAddress.text.toString())
-                jsonInfo.addProperty("password", binding.edtPassword.text.toString())
-                jsonInfo.addProperty("name", binding.edtName.text.toString())
+                jsonInfo.addProperty("createUID", binding.edtAddress.text.toString())
+                jsonInfo.addProperty("createPWD", binding.edtPassword.text.toString())
+                jsonInfo.addProperty("createNM", binding.edtName.text.toString())
+                jsonInfo.addProperty("createTLP", binding.edtPhone.text.toString())
 
-                server?.postRequest(jsonInfo)?.enqueue(object :Callback<CreateID>{
+                server?.createAccount(jsonInfo)?.enqueue(object :Callback<CreateID>{
                     override fun onResponse(call: Call<CreateID>, response: Response<CreateID>) {
-                        text.text= response.body()?.msg
 
-                        Log.d("TAG", response.body()?.msg.toString())
+                        if(response.body()?.data!!) {
+                            text.text = "회원가입이 완료 되었습니다."
 
-                        var toast = Toast(applicationContext)
-                        toast.view = layoutInflater
-                        toast.setGravity(0,0,0)
-                        toast.show()
+                            Log.d("TAG", response.body()?.msg.toString())
 
-                        passOverlap = 0
+                            var toast = Toast(applicationContext)
+                            toast.view = layoutInflater
+                            toast.setGravity(0,0,0)
+                            toast.show()
+
+                            passOverlap = 0
+
+                            binding.edtAddress.text.clear()
+                            binding.edtPasswordConfirm.text.clear()
+                            binding.edtPassword.text.clear()
+                            binding.edtName.text.clear()
+                            binding.edtPhone.text.clear()
+                        } else {
+                            text.text = "입력정보를 다시 확인해주세요."
+
+                            Log.d("TAG", response.body()?.msg.toString())
+
+                            var toast = Toast(applicationContext)
+                            toast.view = layoutInflater
+                            toast.setGravity(0,0,0)
+                            toast.show()
+
+                        }
                     }
 
                     override fun onFailure(call: Call<CreateID>, t: Throwable) {

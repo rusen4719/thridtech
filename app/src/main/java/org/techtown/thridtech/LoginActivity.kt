@@ -9,9 +9,9 @@ import android.view.LayoutInflater
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import android.widget.Toast
+import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import org.techtown.thridtech.databinding.ActivityLoginBinding
-import org.techtown.thridtech.databinding.ActivityMainBinding
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -23,7 +23,7 @@ private val binding get() = mBinding!!
 
 class LoginActivity : AppCompatActivity() {
 
-    val url = "https://chatdemo2121.herokuapp.com/"
+    val url = "https://chatdemo2121.herokuapp.com"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,14 +76,43 @@ class LoginActivity : AppCompatActivity() {
                 jsonObj.addProperty("user_id", edtId.text.toString())
                 jsonObj.addProperty("password", edtPwd.text.toString())
 
-                server?.login(edtId.text.toString(),edtPwd.text.toString())?.enqueue(object :Callback<Login>{
+                server?.login(jsonObj)?.enqueue(object :Callback<Login>{
                     override fun onResponse(call: Call<Login>, response: Response<Login>) {
-                        Log.d("TAG", response.body()?.data.toString())
-                        Log.d("TAG", response.body().toString())
+                        Log.d("TAG", response.body()?.data?.get("user_id").toString())
+                        Log.d("TAG", response.body()?.msg.toString())
                         Log.d("TAG", response.toString())
+
+                        startActivity(intent)
+
+                        var myId = response.body()?.data?.toString()
+
+                        val first = myId?.indexOf("user_id")?.plus(10)
+                        val last = myId?.indexOf("password")?.minus(3)
+                        myId = myId?.substring(first!!, last!!)
+
+                        Log.d("TAG", myId.toString())
+                        Log.d("TAG", response.body()?.data?.get("user_id")!!.asString)
+
+                        var jsonInfo = JsonObject()
+                        jsonInfo.addProperty("id", myId)
+
+                        server?.findFriends(myId.toString())?.enqueue(object :Callback<FindFriend>{
+                            override fun onResponse(call: Call<FindFriend>, response: Response<FindFriend>) {
+
+                                Log.d("TAG", response.body().toString())
+                                Log.d("TAG", response.body()?.data?.get(0).toString())
+                                Log.d("TAG", response.body()?.msg.toString())
+                            }
+
+                            override fun onFailure(call: Call<FindFriend>, t: Throwable) {
+                                Log.d("TAG", "Fail to Find Friends")
+                            }
+                        })
+
                     }
 
                     override fun onFailure(call: Call<Login>, t: Throwable) {
+                        Log.d("TAG", "fail")
                     }
                 })
             }
