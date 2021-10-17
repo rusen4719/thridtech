@@ -84,31 +84,13 @@ class LoginActivity : AppCompatActivity() {
 
                         startActivity(intent)
 
-                        var myId = response.body()?.data?.toString()
+                        var myId = response.body()?.data?.get("user_id")!!.asString
+                        var myName = response.body()?.data?.get("name")!!.asString
+                        var myStatus = response.body()?.data?.get("status_msg")!!.asString
 
-                        val first = myId?.indexOf("user_id")?.plus(10)
-                        val last = myId?.indexOf("password")?.minus(3)
-                        myId = myId?.substring(first!!, last!!)
-
-                        Log.d("TAG", myId.toString())
-                        Log.d("TAG", response.body()?.data?.get("user_id")!!.asString)
-
-                        var jsonInfo = JsonObject()
-                        jsonInfo.addProperty("id", myId)
-
-                        server?.findFriends(myId.toString())?.enqueue(object :Callback<FindFriend>{
-                            override fun onResponse(call: Call<FindFriend>, response: Response<FindFriend>) {
-
-                                Log.d("TAG", response.body().toString())
-                                Log.d("TAG", response.body()?.data?.get(0).toString())
-                                Log.d("TAG", response.body()?.msg.toString())
-                            }
-
-                            override fun onFailure(call: Call<FindFriend>, t: Throwable) {
-                                Log.d("TAG", "Fail to Find Friends")
-                            }
-                        })
-
+                        Preferences.prefs.setString("MyID", myId.toString())
+                        Preferences.prefs.setString("MyName", myName.toString())
+                        Preferences.prefs.setString("MyStatus", myStatus.toString())
                     }
 
                     override fun onFailure(call: Call<Login>, t: Throwable) {

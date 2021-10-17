@@ -3,19 +3,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/friends"
+        android:enabled="true"
+        android:icon="@drawable/ic_baseline_people_alt_24"
+        android:title="친구"
+        app:cnb_iconColor="@color/navigation_color_frd"/>
+
+    <item
         android:id="@+id/chat_room"
         android:enabled="true"
         android:icon="@drawable/chat_room"
         android:title="채팅"
         android:iconTint="@color/purple_200"
         app:cnb_iconColor="@color/navigation_color_chat"/>
-
-    <item
-        android:id="@+id/friends"
-        android:enabled="true"
-        android:icon="@drawable/ic_baseline_people_alt_24"
-        android:title="친구"
-        app:cnb_iconColor="@color/navigation_color_frd"/>
 
     <item
         android:id="@+id/settings"

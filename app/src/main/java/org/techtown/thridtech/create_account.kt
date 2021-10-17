@@ -1,7 +1,9 @@
 package org.techtown.thridtech
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -151,11 +153,9 @@ class create_account : AppCompatActivity() {
 
                             passOverlap = 0
 
-                            binding.edtAddress.text.clear()
-                            binding.edtPasswordConfirm.text.clear()
-                            binding.edtPassword.text.clear()
-                            binding.edtName.text.clear()
-                            binding.edtPhone.text.clear()
+                            Handler().postDelayed({ startActivity(Intent(applicationContext
+                                , LoginActivity::class.java)) }, 2000)
+
                         } else {
                             text.text = "입력정보를 다시 확인해주세요."
 

@@ -18,14 +18,12 @@ import org.techtown.thridtech.databinding.ActivityCreateAccountBinding
 import org.techtown.thridtech.databinding.ActivityHomeBinding
 import org.techtown.thridtech.databinding.FragmentChatRoomBinding
 
-// 전역 변수로 바인딩 객체 선언
 private var mBinding: ActivityHomeBinding? = null
-// 매번 null 체크를 할 필요 없이 편의성을 위해 바인딩 변수 재 선언
 private val binding get() = mBinding!!
 
 class Home : AppCompatActivity() {
-    private val fragmentOne by lazy { chat_room() }
-    private val fragmentTwo by lazy { friends() }
+    private val fragmentTwo by lazy { chat_room() }
+    private val fragmentOne by lazy { friends() }
     private val fragmentThree by lazy { settings() }
     private val fragments: List<Fragment> = listOf( fragmentOne, fragmentTwo, fragmentThree )
 
@@ -54,8 +52,8 @@ class Home : AppCompatActivity() {
         binding.bottomNav.run {
             setOnItemSelectedListener {
                 val page = when(it) {
-                    R.id.chat_room -> 0
-                    R.id.friends -> 1
+                    R.id.friends -> 0
+                    R.id.chat_room -> 1
                     R.id.settings -> 2
                     else -> 0
                 }
@@ -73,8 +71,8 @@ class Home : AppCompatActivity() {
             registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                 override fun onPageSelected(position: Int) {
                     val navigation = when(position) {
-                        0 -> R.id.chat_room
-                        1 -> R.id.friends
+                        0 -> R.id.friends
+                        1 -> R.id.chat_room
                         2 -> R.id.settings
                         else -> R.id.chat_room
                     }

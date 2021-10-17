@@ -17,9 +17,11 @@ class Adapter_Friends(private val context: Context) : RecyclerView.Adapter<Adapt
     inner class ViewHolder(view : View) : RecyclerView.ViewHolder(view) {
         private val image = itemView.findViewById<ImageView>(R.id.image)
         private val name = itemView.findViewById<TextView>(R.id.frd_name)
+        private val status = itemView.findViewById<TextView>(R.id.frd_status)
 
         fun bind(item: Data_Friends) {
             name.text = item.name
+            status.text = item.status
             Glide.with(itemView).load(item.image).into(image)
         }
     }

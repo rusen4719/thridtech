@@ -36,7 +36,6 @@ interface APIInterface {
     fun logi1n(@Field("user_id")user_id: String,
               @Field("password")password: String): Call<Login>
 
-
     @POST("/api/auth/login")
     fun login(@Body jsonObj: JsonObject): Call<Login>
 
