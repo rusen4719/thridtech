@@ -15,6 +15,7 @@ import android.view.MotionEvent
 import android.view.View.OnTouchListener
 import androidx.annotation.RequiresApi
 import com.google.android.material.textfield.TextInputLayout
+import com.google.gson.JsonObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -52,6 +53,10 @@ class Chatting : AppCompatActivity() {
 
     lateinit var mSocket: Socket
 
+    val myId = Preferences.prefs.getString("MyID" , "null")
+    val myUrl = Preferences.prefs.getString(myId+"_url" , "null")
+    val myName = Preferences.prefs.getString("MyName" , "null")
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //setContentView(R.layout.activity_chatting)
@@ -64,6 +69,7 @@ class Chatting : AppCompatActivity() {
         } catch (e : URISyntaxException) { }
 
         mSocket.on(Socket.EVENT_CONNECT, onConnect)
+        mSocket.on("message", onMessage)
 
         adapter = Adapter_Chatting(this)
         binding.recycler.setHasFixedSize(true)
@@ -81,7 +87,30 @@ class Chatting : AppCompatActivity() {
         binding.btnBack.setOnClickListener { finish() }
 
         binding.textInputLayout.setEndIconOnClickListener {
-            Log.d("TAG", "Chatting : " + binding.edtChatting.text.toString())
+            var chatting = binding.edtChatting.text.toString()
+
+            var messageObj = JsonObject()
+            messageObj.addProperty("room_id", room_id)
+            messageObj.addProperty("send_user_id", myId)
+            messageObj.addProperty("message", chatting)
+            messageObj.addProperty("not_read", 1)
+
+            mSocket.emit("message", messageObj)
+
+            var posixTime = System.currentTimeMillis()
+            val date = Date(posixTime)
+            val mForamt = SimpleDateFormat("hh시 mm분")
+            val time = mForamt.format(date)
+
+            datas.apply {
+                add(Data_chatting_basic(name = myName, contents = chatting
+                    , timedate = time, type = multi_type1, image = myUrl))
+            }
+
+            adapter.datas = datas
+            adapter.notifyDataSetChanged()
+            binding.recycler.adapter = adapter
+
             binding.edtChatting.setText("")
         }
 
@@ -100,7 +129,11 @@ class Chatting : AppCompatActivity() {
     }
 
     val onConnect = Emitter.Listener {
-        mSocket.emit("emitReceive", "OK")
+        Log.d("TAG", "Chatting.kt : 연결됨")
+    }
+
+    val onMessage = Emitter.Listener {
+        Log.d("TAG", "onMessage : " + it.toString())
     }
 
     fun callChats() {

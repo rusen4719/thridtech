@@ -46,7 +46,7 @@ class Adapter_Chat_Room(private val context: Context) : RecyclerView.Adapter<Ada
             //Glide.with(itemView).load(item.image).into(image)
 
             itemView.setOnClickListener {
-                mSocket.emit("joinRoom", item.room_id)
+                mSocket.emit("join room", item.room_id)
                 val intent = Intent(context, Chatting::class.java)
                 intent.putExtra("title",item.title)
                 intent.putExtra("parti",item.participant)
