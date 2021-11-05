@@ -78,19 +78,24 @@ class LoginActivity : AppCompatActivity() {
 
                 server?.login(jsonObj)?.enqueue(object :Callback<Login>{
                     override fun onResponse(call: Call<Login>, response: Response<Login>) {
-                        Log.d("TAG", response.body()?.data?.get("user_id").toString())
-                        Log.d("TAG", response.body()?.msg.toString())
-                        Log.d("TAG", response.toString())
-
                         startActivity(intent)
 
                         var myId = response.body()?.data?.get("user_id")!!.asString
                         var myName = response.body()?.data?.get("name")!!.asString
                         var myStatus = response.body()?.data?.get("status_msg")!!.asString
+                        var myUrl = response.body()?.data?.get("profile_img_url")!!.asString
+                        var myObjectID = response.body()?.data?.get("_id")!!.asString
 
                         Preferences.prefs.setString("MyID", myId.toString())
                         Preferences.prefs.setString("MyName", myName.toString())
                         Preferences.prefs.setString("MyStatus", myStatus.toString())
+                        if(myUrl.isNullOrEmpty()) {
+                            Preferences.prefs.setString(myId+"_url", "http://i.ibb.co/2d9vT7F/sample-1.jpg")
+                        } else {
+                            Preferences.prefs.setString(myId+"_url", myUrl.toString())
+                        }
+
+                        Preferences.prefs.setString("MyObjectId", myObjectID.toString())
                     }
 
                     override fun onFailure(call: Call<Login>, t: Throwable) {

@@ -1,6 +1,7 @@
 package org.techtown.thridtech
 
 import android.content.Context
+import android.content.Intent
 import android.media.Image
 import android.util.Log
 import android.view.LayoutInflater
@@ -8,8 +9,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import io.socket.client.IO
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import io.socket.client.Socket
+import io.socket.emitter.Emitter
+import java.net.URISyntaxException
 
 class Adapter_Friends(private val context: Context) : RecyclerView.Adapter<Adapter_Friends.ViewHolder>() {
     var datas = mutableListOf<Data_Friends>()
@@ -22,12 +28,22 @@ class Adapter_Friends(private val context: Context) : RecyclerView.Adapter<Adapt
         fun bind(item: Data_Friends) {
             name.text = item.name
             status.text = item.status
-            Glide.with(itemView).load(item.image).into(image)
+            if (item.image.isNullOrEmpty()) {
+                Glide.with(itemView).load(R.drawable.sample_1).into(image)
+            } else {
+                Glide.with(itemView).load(item.image).into(image)
+            }
+
+            itemView.setOnClickListener {
+                val intent = Intent(context, Chatting::class.java)
+                context.startActivity(intent)
+            }
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(context).inflate(R.layout.item_friends,parent,false)
+
         return ViewHolder(view)
     }
 

@@ -114,8 +114,6 @@ class Friends_add : AppCompatActivity() {
                             bool = true
                         }
                     }
-
-
                     if (bool == true) {
                         text.text = "이미 있는 친구입니다."
 

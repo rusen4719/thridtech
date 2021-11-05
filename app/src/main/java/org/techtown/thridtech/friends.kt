@@ -1,12 +1,15 @@
 package org.techtown.thridtech
 
+import android.content.ContentValues
 import android.content.Intent
+import android.database.sqlite.SQLiteDatabase
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.bumptech.glide.Glide
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import org.json.JSONArray
@@ -40,6 +43,11 @@ class friends : Fragment() {
             startActivity(intent)
         }
 
+        binding.swipeRefresh.setOnRefreshListener {
+            initRecycler()
+            binding.swipeRefresh.isRefreshing = false
+        }
+
         return binding.root
     }
 
@@ -48,9 +56,11 @@ class friends : Fragment() {
         var myId = Preferences.prefs.getString("MyID", null.toString())
         val myName = Preferences.prefs.getString("MyName", null.toString())
         val myStatus = Preferences.prefs.getString("MyStatus", null.toString())
+        val myUrl = Preferences.prefs.getString("MyUrl", null.toString())
 
         binding.myName.text = myName
         binding.myStatus.text = myStatus
+        Glide.with(requireContext()).load(myUrl).into(binding.image)
 
         adapter = Adapter_Friends(requireActivity())
         binding.recycler.setHasFixedSize(true)
@@ -66,11 +76,8 @@ class friends : Fragment() {
         var jsonInfo = JsonObject()
         jsonInfo.addProperty("id", myId)
 
-        Log.d("TAG", myId)
-
         server?.findFriends(myId)?.enqueue(object : Callback<FindFriend> {
             override fun onResponse(call: Call<FindFriend>, response: Response<FindFriend>) {
-                val array : ArrayList<String>? = null
 
                 response.body()?.data?.asJsonArray?.forEach {
 
@@ -80,12 +87,17 @@ class friends : Fragment() {
                     val status = it.asJsonObject.get("status_msg").asString
 
                         datas.apply {
-                            add(Data_Friends(image = R.drawable.sample_1, name = name, status = status))
+                            if(profile.isNullOrEmpty()) {
+                                add(Data_Friends(image = "http://i.ibb.co/2d9vT7F/sample-1.jpg", name = name, status = status))
+                                Preferences.prefs.setString(id+"_url" , "http://i.ibb.co/2d9vT7F/sample-1.jpg")
+                            } else {
+                                add(Data_Friends(image = profile, name = name, status = status))
+                                Preferences.prefs.setString(id+"_url" , profile)
+                            }
                         }
                         adapter.datas = datas
                         adapter.notifyDataSetChanged()
                 }
-
                 check_frdNums = datas.size
                 Preferences.prefs.setString("frdList_renewal", check_frdNums.toString())
                 Preferences.prefs.setString("frdList_renewal_prepare", check_frdNums.toString())
@@ -96,21 +108,17 @@ class friends : Fragment() {
             }
         })
 
+
         binding.frdAdd.setOnClickListener{
             val intent = Intent(context, Friends_add::class.java)
             startActivity(intent)
         }
-
     }
 
     override fun onResume() {
         super.onResume()
         val newCheck = Preferences.prefs.getString("frdList_renewal", "no value")
         val check = Preferences.prefs.getString("frdList_renewal_prepare", "no value")
-
-        Log.d("TAG", check.toString())
-        Log.d("TAG", check_frdNums.toString())
-        Log.d("TAG", check_frdNums.toString())
 
         if (check == "no value" || newCheck == "no value") {
 

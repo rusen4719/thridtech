@@ -58,7 +58,6 @@ class create_account : AppCompatActivity() {
 
                 passOverlap = 0
             } else {
-                Log.d("TAG", "1")
                 val retrofit = Retrofit.Builder()
                     .baseUrl(url)
                     .addConverterFactory(GsonConverterFactory.create())
@@ -72,9 +71,6 @@ class create_account : AppCompatActivity() {
                 server?.overlap(jsonInfo)?.enqueue(object :Callback<OverlapID>{
                     override fun onResponse(call: Call<OverlapID>, response: Response<OverlapID>) {
                         if (response.body()?.data!!) {
-                            Log.d("TAG", response.body()?.msg.toString())
-                            Log.d("TAG", response.body()?.data.toString())
-                            Log.d("TAG", response.toString())
 
                             text.text= "사용 가능합니다."
 

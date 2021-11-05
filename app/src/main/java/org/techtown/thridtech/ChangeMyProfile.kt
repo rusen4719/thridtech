@@ -19,7 +19,12 @@ import android.view.inputmethod.InputMethodManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import com.bumptech.glide.Glide
 import com.google.gson.JsonObject
+import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import okhttp3.Dispatcher
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -33,6 +38,7 @@ import retrofit2.http.Url
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
+import java.lang.Exception
 import kotlin.reflect.typeOf
 
 private var mBinding: ActivityChangeMyProfileBinding? = null
@@ -41,14 +47,26 @@ private val binding get() = mBinding!!
 class ChangeMyProfile : AppCompatActivity() {
     val url = "https://chatdemo2121.herokuapp.com/"
 
-    var myId = Preferences.prefs.getString("MyID", null.toString())
+    var myObjectId = Preferences.prefs.getString("MyObjectId", null.toString())
     val myName = Preferences.prefs.getString("MyName", null.toString())
     val myStatus = Preferences.prefs.getString("MyStatus", null.toString())
+    val myUrl = Preferences.prefs.getString("MyUrl", null.toString())
+
+    var changeUrl :String? = null
 
     val REQ_GALLERY = 12
-    var uri : Uri? = null
+    var myUri : Uri? = null
 
     val REQUEST_IMAGE_CAPTURE = 1
+
+    val retrofit = Retrofit.Builder()
+        .baseUrl(url)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+
+    var server = retrofit?.create(APIInterface::class.java)
+
+    var input : String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,42 +80,75 @@ class ChangeMyProfile : AppCompatActivity() {
         binding.changeProfileMainlayout.setOnClickListener { hideKeyboard() }
         binding.btnBack.setOnClickListener { finish() }
 
-        val retrofit = Retrofit.Builder()
-            .baseUrl(url)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-
-        var server = retrofit?.create(APIInterface::class.java)
-
         binding.changeProfileName.setText(myName)
         binding.changeProfileStatus.setText(myStatus)
 
-        var file = File(uri.toString())
+        Glide.with(applicationContext).load(myUrl).into(binding.image)
 
         binding.saveChangeProfile.setOnClickListener {
-            val input = getRealPath(uri!!)
-            var permission = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+            var permission = ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.CAMERA)
 
-            val file = File(input)
-            val requestFile = RequestBody.create(MediaType.parse("image/jpeg"), file)
-            val body = MultipartBody.Part.createFormData("profile-img",file.name,requestFile)
-
-            server?.uploadImg1(body)?.enqueue(object : Callback<UploadImg> {
-                override fun onResponse(call: Call<UploadImg>, response: Response<UploadImg>) {
-                    Log.d("TAG", response.body()?.msg.toString())
-                    Log.d("TAG", response.body()?.data.toString())
-                }
-
-                override fun onFailure(call: Call<UploadImg>, t: Throwable) {
-                    Log.d("TAG", "실패")
-                    Log.d("TAG", t.toString())
-                }
-            })
+            if (myUri.toString().equals("null")) {
+                changeProfile()
+            } else {
+                uploadImage()
+            }
         }
 
         binding.btnChangeProfile.setOnClickListener {
             selectGallery()
         }
+    }
+
+    private fun uploadImage() {
+        if (!myUri.toString().equals("null")) {
+            input = myUri?.let { getRealPath(it) }
+            val file = File(input)
+            val requestFile = RequestBody.create(MediaType.parse("image/jpeg"), file)
+            val body = MultipartBody.Part.createFormData("profile-img",file.name,requestFile)
+
+            server?.uploadImg(body)?.enqueue(object : Callback<UploadImg> {
+                override fun onResponse(call: Call<UploadImg>, response: Response<UploadImg>) {
+                    changeUrl = response.body()!!.data!!.asString.toString()
+                    Log.d("TAG", response.body()!!.msg.toString())
+                    changeProfile()
+                }
+
+                override fun onFailure(call: Call<UploadImg>, t: Throwable) {
+                    Log.d("TAG", t.toString())
+                }
+            })
+        }
+    }
+
+    private fun changeProfile() {
+        var jsonInfo = JsonObject()
+        jsonInfo.addProperty("id", myObjectId)
+        jsonInfo.addProperty("name", binding.changeProfileName.text.toString())
+        jsonInfo.addProperty("status_msg", binding.changeProfileStatus.text.toString())
+        if (!changeUrl.isNullOrEmpty()) {
+            jsonInfo.addProperty("profile_img_url", changeUrl)
+        } else {
+            val url = Preferences.prefs.getString("MyUrl","no")
+            jsonInfo.addProperty("profile_img_url", url)
+        }
+
+        server?.changeProfile(jsonInfo)?.enqueue(object : Callback<ChangeProfile> {
+            override fun onResponse(call: Call<ChangeProfile>, response: Response<ChangeProfile>) {
+                Preferences.prefs.setString("MyName", binding.changeProfileName.text.toString())
+                Preferences.prefs.setString("MyStatus", binding.changeProfileStatus.text.toString())
+                if (!changeUrl.isNullOrEmpty()) {
+                    Preferences.prefs.setString("MyUrl", changeUrl.toString())
+                }
+
+                finish()
+            }
+
+            override fun onFailure(call: Call<ChangeProfile>, t: Throwable) {
+                Log.d("TAG", "실패")
+                Log.d("TAG", t.toString())
+            }
+        })
     }
 
     private fun requestPermission() {
@@ -133,13 +184,12 @@ class ChangeMyProfile : AppCompatActivity() {
             when(requestCode) {
                 REQ_GALLERY -> {
                     data?.data?.let { uri ->
-                        this.uri = uri
+                        myUri = uri
                         binding.image.setImageURI(uri)
                     }
                 }
             }
         }
-
     }
 
     fun hideKeyboard() {
