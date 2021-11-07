@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_marginLeft="20dp"
-    android:layout_marginTop="10dp">
+    android:maxWidth="300dp"
+    android:maxHeight="200dp"
+    android:layout_marginTop="15dp">
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -47,19 +49,20 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginLeft="10dp">
+            android:layout_marginLeft="10dp"
+            android:minWidth="300dp">
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/contents_carview"
-                android:layout_width="200dp"
-                android:layout_height="135dp"
-                app:cardCornerRadius="30dp"
-                app:cardElevation="0dp">
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:cardElevation="0dp"
+                android:layout_weight="10">
 
                 <ImageView
                     android:id="@+id/show_image"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_width="250dp"
+                    android:layout_height="wrap_content"
                     android:src="@drawable/sample_1"
                     android:scaleType="fitXY"/>
 
@@ -72,9 +75,11 @@
                 android:text="time date"
                 android:textStyle="bold"
                 android:textSize="12sp"
-                android:layout_marginLeft="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
                 android:textColor="#C6C7CD"
-                android:layout_gravity="bottom"/>
+                android:layout_gravity="bottom"
+                android:layout_weight="1"/>
 
         </LinearLayout>
     </LinearLayout>

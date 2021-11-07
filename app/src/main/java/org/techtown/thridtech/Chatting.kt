@@ -230,7 +230,7 @@ class Chatting : YouTubeBaseActivity()  {
             if (message.toString().contains("youtube.com/watch")) {
 
             } else {
-                Log.d("TAG", "urluril : ")
+                Log.d("TAG", "urlutil : "+ URLUtil.isAboutUrl(message.toString()))
                 type = multi_type4
                 showImage(name, message.toString(), showTime, type, url)
             }

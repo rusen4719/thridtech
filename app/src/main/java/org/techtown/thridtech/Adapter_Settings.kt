@@ -12,9 +12,6 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import android.content.Context.MODE_PRIVATE
 
-
-
-
 class Adapter_Settings(private val context: Context) : RecyclerView.Adapter<Adapter_Settings.ViewHolder>() {
     var datas = mutableListOf<Data_settings>()
 
