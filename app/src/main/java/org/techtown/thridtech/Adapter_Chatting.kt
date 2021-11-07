@@ -33,13 +33,31 @@ class Adapter_Chatting(private val context: Context) : RecyclerView.Adapter<Recy
                 )
                 MultiViewHolder1(view)
             }
-            else -> {
+            multi_type2 -> {
                 view = LayoutInflater.from(parent.context).inflate(
                     R.layout.item_chatting_mine,
                     parent,
                     false
                 )
                 MultiViewHolder2(view)
+            }
+
+            multi_type3 -> {
+                view = LayoutInflater.from(parent.context).inflate(
+                    R.layout.item_differ_day,
+                    parent,
+                    false
+                )
+                MultiViewHolder3(view)
+            }
+
+            else -> {
+                view = LayoutInflater.from(parent.context).inflate(
+                    R.layout.item_image,
+                    parent,
+                    false
+                )
+                MultiViewHolder4(view)
             }
         }
     }
@@ -57,6 +75,14 @@ class Adapter_Chatting(private val context: Context) : RecyclerView.Adapter<Recy
             }
             multi_type2 -> {
                 (holder as MultiViewHolder2).bind(datas[position])
+                holder.setIsRecyclable(false)
+            }
+            multi_type3 -> {
+                (holder as MultiViewHolder3).bind(datas[position])
+                holder.setIsRecyclable(false)
+            }
+            multi_type4 -> {
+                (holder as MultiViewHolder4).bind(datas[position])
                 holder.setIsRecyclable(false)
             }
         }
@@ -86,6 +112,29 @@ class Adapter_Chatting(private val context: Context) : RecyclerView.Adapter<Recy
         fun bind(item: Data_chatting_basic) {
             name.text = item.name
             contents.text = item.contents
+            timeDate.text = item.timedate
+            Glide.with(itemView).load(item.image).into(image)
+        }
+    }
+
+    inner class MultiViewHolder3(view: View) : RecyclerView.ViewHolder(view) {
+
+        private val day: TextView = view.findViewById(R.id.differ_time)
+
+        fun bind(item: Data_chatting_basic) {
+            day.text = item.timedate
+        }
+    }
+
+    inner class MultiViewHolder4(view: View) : RecyclerView.ViewHolder(view) {
+        private val show_image : ImageView = view.findViewById(R.id.show_image)
+        private val name: TextView = view.findViewById(R.id.user_name)
+        private val timeDate: TextView = view.findViewById(R.id.time_date)
+        private val image: ImageView = view.findViewById(R.id.image)
+
+        fun bind(item: Data_chatting_basic) {
+            Glide.with(itemView).load(item.contents).into(show_image)
+            name.text = item.name
             timeDate.text = item.timedate
             Glide.with(itemView).load(item.image).into(image)
         }

@@ -25,42 +25,24 @@ class Adapter_Chat_Room(private val context: Context) : RecyclerView.Adapter<Ada
     var datas = mutableListOf<Data_Chat_Room>()
 
     inner class ViewHolder(view : View) : RecyclerView.ViewHolder(view) {
-        lateinit var mSocket: Socket
-
         private val title = itemView.findViewById<TextView>(R.id.title)
         private val last_msg = itemView.findViewById<TextView>(R.id.last_msg)
         private val receive_time = itemView.findViewById<TextView>(R.id.receive_time)
         
         fun bind(item: Data_Chat_Room) {
-            try {
-                mSocket = IO.socket("https://chatdemo2121.herokuapp.com/")
-                mSocket.connect()
-            } catch (e : URISyntaxException) { }
-
-            mSocket.on(Socket.EVENT_CONNECT, onConnect)
-            mSocket.on("message", onMessage)
-
             title.text = item.title
             last_msg.text = item.last_msg
             receive_time.text = item.receive_time
             //Glide.with(itemView).load(item.image).into(image)
 
             itemView.setOnClickListener {
-                mSocket.emit("joinRoom", item.room_id)
                 val intent = Intent(context, Chatting::class.java)
                 intent.putExtra("title",item.title)
                 intent.putExtra("parti",item.participant)
                 intent.putExtra("room_id",item.room_id)
+                intent.putExtra("last_chat",item.lastChatDate)
                 context.startActivity(intent)
             }
-        }
-
-        val onConnect = Emitter.Listener {
-            Log.d("TAG", "onConnect : " + it.toString())
-        }
-
-        val onMessage = Emitter.Listener {
-            Log.d("TAG", "onMessage : " + it.toString())
         }
 
     }

@@ -54,9 +54,9 @@ class friends : Fragment() {
     fun initRecycler() {
         datas.clear()
         var myId = Preferences.prefs.getString("MyID", null.toString())
-        val myName = Preferences.prefs.getString("MyName", null.toString())
+        val myName = Preferences.prefs.getString(myId+"_name", null.toString())
         val myStatus = Preferences.prefs.getString("MyStatus", null.toString())
-        val myUrl = Preferences.prefs.getString("MyUrl", null.toString())
+        val myUrl = Preferences.prefs.getString(myId+"_url", null.toString())
 
         binding.myName.text = myName
         binding.myStatus.text = myStatus
@@ -85,6 +85,8 @@ class friends : Fragment() {
                     val id = it.asJsonObject.get("user_id").asString
                     val profile = it.asJsonObject.get("profile_img_url").asString
                     val status = it.asJsonObject.get("status_msg").asString
+
+                    Preferences.prefs.setString(id+"_name", name)
 
                         datas.apply {
                             if(profile.isNullOrEmpty()) {

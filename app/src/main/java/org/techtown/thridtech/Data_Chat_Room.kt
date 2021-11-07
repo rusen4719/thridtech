@@ -5,5 +5,6 @@ data class Data_Chat_Room(
     val last_msg : String,
     val receive_time : String,
     val participant : ArrayList<String>,
-    val room_id : String
+    val room_id : String,
+    val lastChatDate : String
 )

@@ -47,10 +47,11 @@ private val binding get() = mBinding!!
 class ChangeMyProfile : AppCompatActivity() {
     val url = "https://chatdemo2121.herokuapp.com/"
 
+    var myId = Preferences.prefs.getString("MyID", "null")
     var myObjectId = Preferences.prefs.getString("MyObjectId", null.toString())
-    val myName = Preferences.prefs.getString("MyName", null.toString())
+    val myName = Preferences.prefs.getString(myId+"_name", null.toString())
     val myStatus = Preferences.prefs.getString("MyStatus", null.toString())
-    val myUrl = Preferences.prefs.getString("MyUrl", null.toString())
+    val myUrl = Preferences.prefs.getString(myId+"_url", null.toString())
 
     var changeUrl :String? = null
 
@@ -129,16 +130,17 @@ class ChangeMyProfile : AppCompatActivity() {
         if (!changeUrl.isNullOrEmpty()) {
             jsonInfo.addProperty("profile_img_url", changeUrl)
         } else {
-            val url = Preferences.prefs.getString("MyUrl","no")
+            val url = Preferences.prefs.getString(myId+"_url","no")
             jsonInfo.addProperty("profile_img_url", url)
         }
 
         server?.changeProfile(jsonInfo)?.enqueue(object : Callback<ChangeProfile> {
             override fun onResponse(call: Call<ChangeProfile>, response: Response<ChangeProfile>) {
-                Preferences.prefs.setString("MyName", binding.changeProfileName.text.toString())
+                Preferences.prefs.setString(myId+"_name", binding.changeProfileName.text.toString())
                 Preferences.prefs.setString("MyStatus", binding.changeProfileStatus.text.toString())
                 if (!changeUrl.isNullOrEmpty()) {
-                    Preferences.prefs.setString("MyUrl", changeUrl.toString())
+
+                    Preferences.prefs.setString(myId+"_url", changeUrl.toString())
                 }
 
                 finish()
