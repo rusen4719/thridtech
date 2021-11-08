@@ -142,7 +142,8 @@ class chat_room : Fragment() {
                     datas.apply {
                         add(Data_Chat_Room( title = roomName,
                             last_msg = lastChat, receive_time = showDate.toString(),
-                            participant = partiArray as ArrayList<String>, room_id = roomId))
+                            participant = partiArray as ArrayList<String>, room_id = roomId,
+                            lastChatDate = updateDate))
                     }
                     
                     adapter.datas = datas

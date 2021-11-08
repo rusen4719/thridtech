@@ -1,59 +1,59 @@
 package org.techtown.thridtech
 
+import android.content.ContentValues
+import android.content.Intent
+import android.database.sqlite.SQLiteDatabase
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.bumptech.glide.Glide
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
+import org.json.JSONArray
+import org.techtown.thridtech.databinding.FragmentChatRoomBinding
+import org.techtown.thridtech.databinding.FragmentFriendsBinding
+import org.techtown.thridtech.databinding.FragmentSettingsBinding
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+private var mBinding: FragmentSettingsBinding? = null
+private val binding get() = mBinding!!
 
-/**
- * A simple [Fragment] subclass.
- * Use the [settings.newInstance] factory method to
- * create an instance of this fragment.
- */
 class settings : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
+    lateinit var adapter: Adapter_Settings
+    val datas = mutableListOf<Data_settings>()
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        mBinding = FragmentSettingsBinding.inflate(inflater, container, false)
+
+        adapter = Adapter_Settings(requireActivity())
+        binding.recycler.setHasFixedSize(true)
+
+        initRecycler()
+
+        return binding.root
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_settings, container, false)
+    fun initRecycler() {
+       datas.apply {
+           add(Data_settings(text = "로그아웃", icon = R.drawable.ic_baseline_highlight_off_24))
+       }
+        adapter.datas = datas
+        adapter.notifyDataSetChanged()
+        binding.recycler.adapter = adapter
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment settings.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            settings().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+
+    override fun onDestroyView() {
+        mBinding = null
+        super.onDestroyView()
     }
+
 }

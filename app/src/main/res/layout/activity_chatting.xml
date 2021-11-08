@@ -56,7 +56,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
+
+    <com.google.android.youtube.player.YouTubePlayerView
         android:id="@+id/youtube_player"
         android:layout_width="match_parent"
         android:layout_height="200dp"
@@ -64,53 +65,56 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/view"
         android:visibility="invisible"
-        android:background="#fff" />
+        android:background="#fff"/>
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="#fff"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout7"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/view" />
 
     <LinearLayout
+        android:id="@+id/linearLayout7"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#7EF5F5F5"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:background="#7EF5F5F5">
+        app:layout_constraintStart_toStartOf="parent">
 
         <ImageView
+            android:id="@+id/galleryBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_baseline_add_box_24"
             android:layout_gravity="center_vertical"
-            android:layout_marginTop="4dp"
             android:layout_marginLeft="5dp"
-            android:background="#fff"/>
+            android:layout_marginTop="4dp"
+            android:background="#fff"
+            android:src="@drawable/ic_baseline_add_box_24" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:background="#7EF5F5F5"
+            android:orientation="horizontal"
+            android:textColorHint="#808080"
             app:boxStrokeColor="#2f4f4f"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:endIconDrawable="@drawable/ic_baseline_send_24"
             app:endIconMode="clear_text"
             app:endIconTint="#4F4D2F"
-            app:endIconDrawable="@drawable/ic_baseline_send_24"
-            android:layout_margin="5dp"
-            android:textColorHint="#808080"
-            android:background="#7EF5F5F5"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            android:orientation="horizontal">
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edt_chatting"
@@ -118,10 +122,10 @@
                 android:layout_height="wrap_content"
                 android:focusable="true"
                 android:fontFamily="@font/conten"
+                android:inputType="textEmailAddress"
                 android:padding="14dp"
                 android:textSize="16sp"
-                android:textStyle="bold"
-                android:inputType="textEmailAddress" />
+                android:textStyle="bold" />
         </com.google.android.material.textfield.TextInputLayout>
 
     </LinearLayout>

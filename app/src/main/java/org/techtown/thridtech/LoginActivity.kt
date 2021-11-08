@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.inputmethod.InputMethodManager
+import android.webkit.URLUtil
 import android.widget.TextView
 import android.widget.Toast
 import com.google.gson.JsonArray
@@ -17,6 +18,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Url
 
 private var mBinding: ActivityLoginBinding? = null
 private val binding get() = mBinding!!
@@ -30,6 +32,14 @@ class LoginActivity : AppCompatActivity() {
         //setContentView(R.layout.activity_login)
         mBinding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        Log.d("TAG", "myId : " + Preferences.prefs.getString("MyID", "없음"))
+
+        if(!Preferences.prefs.getString("MyID","").isNullOrEmpty()) {
+            val intent = Intent(this, Home::class.java)
+            startActivity(intent)
+            finish()
+        }
 
         binding.loginMainLayout.setOnClickListener(){
             hideKeyboard()
@@ -87,13 +97,15 @@ class LoginActivity : AppCompatActivity() {
                         var myObjectID = response.body()?.data?.get("_id")!!.asString
 
                         Preferences.prefs.setString("MyID", myId.toString())
-                        Preferences.prefs.setString("MyName", myName.toString())
+                        Preferences.prefs.setString(myId+"_name", myName.toString())
                         Preferences.prefs.setString("MyStatus", myStatus.toString())
                         if(myUrl.isNullOrEmpty()) {
                             Preferences.prefs.setString(myId+"_url", "http://i.ibb.co/2d9vT7F/sample-1.jpg")
                         } else {
                             Preferences.prefs.setString(myId+"_url", myUrl.toString())
                         }
+
+                        Log.d("TAG", "url : " + URLUtil.isValidUrl("http:://www.naver.com").toString())
 
                         Preferences.prefs.setString("MyObjectId", myObjectID.toString())
                     }

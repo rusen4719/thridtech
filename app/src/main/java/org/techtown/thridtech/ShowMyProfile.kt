@@ -16,9 +16,10 @@ private val binding get() = mBinding!!
 class ShowMyProfile : AppCompatActivity() {
     val url = "https://chatdemo2121.herokuapp.com/"
 
-    val myName = Preferences.prefs.getString("MyName", null.toString())
+    var myId = Preferences.prefs.getString("MyID", "null")
+    val myName = Preferences.prefs.getString(myId+"_name", null.toString())
     val myStatus = Preferences.prefs.getString("MyStatus", null.toString())
-    val myUrl = Preferences.prefs.getString("MyUrl", null.toString())
+    val myUrl = Preferences.prefs.getString(myId+"_url", null.toString())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,9 +47,9 @@ class ShowMyProfile : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        val myName = Preferences.prefs.getString("MyName", null.toString())
+        val myName = Preferences.prefs.getString(myId+"_name", null.toString())
         val myStatus = Preferences.prefs.getString("MyStatus", null.toString())
-        val myUrl = Preferences.prefs.getString("MyUrl", null.toString())
+        val myUrl = Preferences.prefs.getString(myId+"_url", null.toString())
         Glide.with(applicationContext).load(myUrl).into(binding.image)
         binding.profileName.text = myName
         binding.profileStatus.text = myStatus
