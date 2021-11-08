@@ -17,6 +17,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import io.socket.client.On
+import java.util.logging.Handler
 
 class Adapter_Chatting(private val context: Context) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 

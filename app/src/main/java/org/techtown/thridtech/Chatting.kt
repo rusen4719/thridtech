@@ -10,6 +10,7 @@ import android.net.Uri
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
 import android.provider.MediaStore
 import android.util.Log
 import androidx.core.view.isVisible
@@ -34,10 +35,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import io.socket.client.IO
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -164,11 +162,6 @@ class Chatting : YouTubeBaseActivity()  {
 
             mSocket.emit("message", messageObj)
 
-            var posixTime = System.currentTimeMillis()
-            val date = Date(posixTime)
-            val mForamt = SimpleDateFormat("hh시 mm분")
-            val time = mForamt.format(date)
-
             binding.recycler.scrollToPosition(adapter.datas.size - 1)
 
             binding.edtChatting.setText("")
@@ -214,20 +207,23 @@ class Chatting : YouTubeBaseActivity()  {
             type = multi_type1
         }
 
-        if (message.toString().contains("youtube.com/watch")) {
-            var youtubeId = message.toString().split("=").get(1)
-
+        if (message.toString().contains("youtube.com/watch")||
+                message.toString().contains("youtu.be/")) {
+            var youtubeId = ""
+            if (message.toString().contains("youtube.com/watch")) {
+                youtubeId = message.toString().split("=").get(1).substring(0,11)
+            } else if(message.toString().contains("youtu.be/")) {
+                youtubeId = message.toString().split("youtu.be/").get(1).substring(0,11)
+            }
             CoroutineScope(Dispatchers.Main).launch {
                 CoroutineScope(Dispatchers.Default).async {
                 }.await()
 
                 playVideo(youtubeId)
-
             }
-
         } else if (URLUtil.isValidUrl(message.toString())) {
 
-            if (message.toString().contains("youtube.com/watch")) {
+            if (message.toString().contains("youtube.com/watch")){
 
             } else {
                 Log.d("TAG", "urlutil : "+ URLUtil.isAboutUrl(message.toString()))
@@ -329,7 +325,6 @@ class Chatting : YouTubeBaseActivity()  {
         var posixTime = System.currentTimeMillis()
 
         server?.callChats(room_id!!, posixTime.toString())?.enqueue(object : Callback<CallChats> {
-            @RequiresApi(Build.VERSION_CODES.O)
             override fun onResponse(call: Call<CallChats>, response: Response<CallChats>) {
                 var type : Int? = null
 
@@ -352,23 +347,30 @@ class Chatting : YouTubeBaseActivity()  {
                     val name = Preferences.prefs.getString(it.send_user_id+"_name","null")
                     var showTime = sendTime(it.createdat.toString())
 
-                    if (URLUtil.isValidUrl(it.message.toString())){
-                        if (it.message.toString().contains("youtube.com/watch")) {
+                    try {
+                        if (URLUtil.isValidUrl(it.message.toString())){
+                            if (it.message.toString().contains("youtube.com/watch")) {
+
+                            } else {
+                                datas.apply {
+                                    add(Data_chatting_basic(name = name, contents = it.message.toString()
+                                        , timedate = showTime, type = multi_type4, image = url))
+                                }
+                            }
 
                         } else {
-                            showImage(name, it.message.toString(), showTime, multi_type4, url)
-                        }
-
-                    } else {
-                        datas.apply {
-                            add(Data_chatting_basic(name = name, contents = it.message.toString()
-                                , timedate = showTime, type = type!!, image = url))
+                            datas.apply {
+                                add(Data_chatting_basic(name = name, contents = it.message.toString()
+                                    , timedate = showTime, type = type!!, image = url))
+                            }
                         }
                         adapter.datas = datas
                         adapter.notifyDataSetChanged()
                         binding.recycler.adapter = adapter
 
                         binding.recycler.scrollToPosition(adapter.datas.size - 1)
+                    }catch (e: Exception) {
+
                     }
                 }
             }
