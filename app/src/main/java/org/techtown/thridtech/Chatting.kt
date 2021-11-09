@@ -18,15 +18,20 @@ import org.techtown.thridtech.databinding.ActivityChattingBinding
 import org.techtown.thridtech.databinding.ActivityMakeChatRoomBinding
 import android.view.MotionEvent
 import android.view.View
+import android.view.View.FOCUS_DOWN
 
 import android.view.View.OnTouchListener
 import android.webkit.URLUtil
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
+import androidx.core.view.ViewCompat
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.youtube.player.YouTubeBaseActivity
 import com.google.android.youtube.player.YouTubeInitializationResult
 import com.google.android.youtube.player.YouTubePlayer
 import com.google.android.youtube.player.YouTubePlayerView
+import com.google.android.youtube.player.internal.i
+import com.google.android.youtube.player.internal.y
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -86,6 +91,7 @@ class Chatting : YouTubeBaseActivity()  {
     var youtubePlayer : YouTubePlayer? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.Theme_Thridtech)
         super.onCreate(savedInstanceState)
         //setContentView(R.layout.activity_chatting)
         mBinding = ActivityChattingBinding.inflate(layoutInflater)
@@ -94,6 +100,9 @@ class Chatting : YouTubeBaseActivity()  {
         youtubeView = findViewById<YouTubePlayerView>(R.id.youtube_player)
 
         initPlayer()
+
+        adapter = Adapter_Chatting(this)
+        binding.recycler.setHasFixedSize(true)
 
         binding.btnShowPlayer.setImageResource(R.drawable.ic_baseline_keyboard_arrow_down_24)
         binding.btnBack.setImageResource(R.drawable.ic_baseline_arrow_back_24)
@@ -142,11 +151,6 @@ class Chatting : YouTubeBaseActivity()  {
 
         mSocket.emit("join room", room_id)
 
-        adapter = Adapter_Chatting(this)
-        binding.recycler.setHasFixedSize(true)
-
-        binding.recycler.scrollToPosition(adapter.datas.size - 1)
-
         callChats()
 
         binding.btnBack.setOnClickListener { finish() }
@@ -161,8 +165,6 @@ class Chatting : YouTubeBaseActivity()  {
             messageObj.put("not_read", 1)
 
             mSocket.emit("message", messageObj)
-
-            binding.recycler.scrollToPosition(adapter.datas.size - 1)
 
             binding.edtChatting.setText("")
         }
@@ -208,29 +210,43 @@ class Chatting : YouTubeBaseActivity()  {
         }
 
         if (message.toString().contains("youtube.com/watch")||
-                message.toString().contains("youtu.be/")) {
+            message.toString().contains("youtu.be/")||
+            message.toString().contains("youtube.com/shorts/")) {
             var youtubeId = ""
             if (message.toString().contains("youtube.com/watch")) {
                 youtubeId = message.toString().split("=").get(1).substring(0,11)
             } else if(message.toString().contains("youtu.be/")) {
                 youtubeId = message.toString().split("youtu.be/").get(1).substring(0,11)
+            } else if(message.toString().contains("youtube.com/shorts/")) {
+                youtubeId = message.toString().split("youtube.com/shorts/").get(1).substring(0,11)
             }
+
             CoroutineScope(Dispatchers.Main).launch {
                 CoroutineScope(Dispatchers.Default).async {
                 }.await()
 
                 playVideo(youtubeId)
+
+                datas.apply {
+                    add(Data_chatting_basic(name = name, contents = message.toString()
+                        , timedate = showTime, type = type!!, image = url))
+                }
+
+                adapter.datas = datas
+                adapter.notifyDataSetChanged()
+                binding.recycler.adapter = adapter
+
+                binding.recycler.scrollToPosition(adapter.datas.size - 1)
+
             }
         } else if (URLUtil.isValidUrl(message.toString())) {
 
             if (message.toString().contains("youtube.com/watch")){
 
             } else {
-                Log.d("TAG", "urlutil : "+ URLUtil.isAboutUrl(message.toString()))
                 type = multi_type4
                 showImage(name, message.toString(), showTime, type, url)
             }
-
         } else {
             CoroutineScope(Dispatchers.Main).launch {
                 CoroutineScope(Dispatchers.Default).async {
@@ -245,7 +261,8 @@ class Chatting : YouTubeBaseActivity()  {
                 adapter.notifyDataSetChanged()
                 binding.recycler.adapter = adapter
 
-                binding.recycler.scrollToPosition(adapter.datas.size - 1)
+                binding.recycler.scrollToPosition(adapter.datas.size-1)
+
             }
         }
     }
@@ -264,7 +281,7 @@ class Chatting : YouTubeBaseActivity()  {
                     override fun onVideoStarted() { }
                     override fun onVideoEnded() {}
                     override fun onError(p0: YouTubePlayer.ErrorReason) {}
-                    override fun onLoaded(videoId: String) { youtubePlayer!!.play() } })
+                    override fun onLoaded(videoId: String) { youtubePlayer!!.pause() } })
 
             }
             override fun onInitializationFailure(
@@ -283,7 +300,7 @@ class Chatting : YouTubeBaseActivity()  {
             youtubePlayer!!.cueVideo(youtubeId)
         }
     }
-    
+
     fun showImage(name : String, message : String, showTime : String, type : Int, url : String) {
         CoroutineScope(Dispatchers.Main).launch {
             CoroutineScope(Dispatchers.Default).async {
@@ -298,25 +315,25 @@ class Chatting : YouTubeBaseActivity()  {
             adapter.notifyDataSetChanged()
             binding.recycler.adapter = adapter
 
-            binding.recycler.scrollToPosition(adapter.datas.size - 1)
+            binding.recycler.scrollToPosition(adapter.datas.size-1)
         }
     }
 
     fun sendTime(time : String) : String {
         var date = Date(time.toLong())
-        var formatTime = SimpleDateFormat("hh mm")
+        var formatTime = SimpleDateFormat("HH mm")
         var resultTime = formatTime.format(date)
 
-        var roomHour = resultTime.split(" ").get(0).toInt().plus(9)
+        var roomHour = resultTime.split(" ").get(0).toInt()
         var roomMinute = resultTime.split(" ").get(1)
         var showTime : String? = null
-        if (roomHour >= 24) {
+/*        if (roomHour >= 24) {
             showTime = roomHour.minus(24).toString()
         } else {
             showTime = roomHour.toString()
-        }
+        }*/
 
-        var returnTime = showTime+"시 " + roomMinute + "분"
+        var returnTime = roomHour.toString()+"시 " + roomMinute + "분"
 
         return returnTime
     }
@@ -324,17 +341,13 @@ class Chatting : YouTubeBaseActivity()  {
     fun callChats() {
         var posixTime = System.currentTimeMillis()
 
+        datas.clear()
+
         server?.callChats(room_id!!, posixTime.toString())?.enqueue(object : Callback<CallChats> {
             override fun onResponse(call: Call<CallChats>, response: Response<CallChats>) {
                 var type : Int? = null
 
                 val myId = Preferences.prefs.getString("MyID","null")
-
-/*                Log.d("TAG", "id : "+ it.getId())
-                Log.d("TAG", "room_id : "+ it.room_id)
-                Log.d("TAG", "message : "+ it.message)
-                Log.d("TAG", "send_user_id : "+ it.send_user_id)
-                Log.d("TAG", "createdat : "+ it.createdat)*/
 
                 response.body()?.data?.forEach {
                     if (it.send_user_id == myId){
@@ -343,14 +356,26 @@ class Chatting : YouTubeBaseActivity()  {
                         type = multi_type1
                     }
 
+/*                    Log.d("TAG", "id : "+ it.getId())
+                    Log.d("TAG", "room_id : "+ it.room_id)
+                    Log.d("TAG", "message : "+ it.message)
+                    Log.d("TAG", "send_user_id : "+ it.send_user_id)
+                    Log.d("TAG", "createdat : "+ it.createdat)*/
+
                     val url = Preferences.prefs.getString(it.send_user_id+"_url","null")
                     val name = Preferences.prefs.getString(it.send_user_id+"_name","null")
                     var showTime = sendTime(it.createdat.toString())
 
                     try {
                         if (URLUtil.isValidUrl(it.message.toString())){
-                            if (it.message.toString().contains("youtube.com/watch")) {
+                            if (it.message.toString().contains("youtube.com/watch") ||
+                                it.message.toString().contains("youtu.be/") ||
+                                it.message.toString().contains("youtube.com/shorts/")) {
 
+                                datas.apply {
+                                    add(Data_chatting_basic(name = name, contents = it.message.toString()
+                                        , timedate = showTime, type = type!!, image = url))
+                                }
                             } else {
                                 datas.apply {
                                     add(Data_chatting_basic(name = name, contents = it.message.toString()
@@ -364,15 +389,15 @@ class Chatting : YouTubeBaseActivity()  {
                                     , timedate = showTime, type = type!!, image = url))
                             }
                         }
-                        adapter.datas = datas
-                        adapter.notifyDataSetChanged()
-                        binding.recycler.adapter = adapter
-
-                        binding.recycler.scrollToPosition(adapter.datas.size - 1)
                     }catch (e: Exception) {
-
                     }
+                    adapter.datas = datas
+                    adapter.notifyDataSetChanged()
+                    binding.recycler.adapter = adapter
+
+                    binding.recycler.scrollToPosition(adapter.datas.size-1)
                 }
+
             }
 
             override fun onFailure(call: Call<CallChats>, t: Throwable) {

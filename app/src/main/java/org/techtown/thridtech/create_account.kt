@@ -32,6 +32,7 @@ class create_account : AppCompatActivity() {
     var passOverlap = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.Theme_Thridtech)
         super.onCreate(savedInstanceState)
         //setContentView(R.layout.activity_create_account)
         mBinding = ActivityCreateAccountBinding.inflate(layoutInflater)

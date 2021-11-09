@@ -33,6 +33,11 @@ class friends : Fragment() {
 
     var check_frdNums  = 0
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        requireActivity().setTheme(R.style.Theme_Thridtech)
+        super.onCreate(savedInstanceState)
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         mBinding = FragmentFriendsBinding.inflate(inflater, container, false)
 

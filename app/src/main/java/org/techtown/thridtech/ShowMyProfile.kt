@@ -22,6 +22,7 @@ class ShowMyProfile : AppCompatActivity() {
     val myUrl = Preferences.prefs.getString(myId+"_url", null.toString())
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.Theme_Thridtech)
         super.onCreate(savedInstanceState)
         //setContentView(R.layout.activity_change_my_profile)
         mBinding = ActivityShowMyProfileBinding.inflate(layoutInflater)

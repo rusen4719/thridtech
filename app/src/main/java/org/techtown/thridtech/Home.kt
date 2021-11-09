@@ -31,6 +31,7 @@ class Home : AppCompatActivity() {
     private val pagerAdapter: MainViewPagerAdapter by lazy { MainViewPagerAdapter(this, fragments) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.Theme_Thridtech)
         super.onCreate(savedInstanceState)
         //setContentView(R.layout.activity_home)
         mBinding = ActivityHomeBinding.inflate(layoutInflater)

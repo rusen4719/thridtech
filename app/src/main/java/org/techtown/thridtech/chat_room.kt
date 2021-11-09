@@ -47,6 +47,11 @@ class chat_room : Fragment() {
 
     var server = retrofit?.create(APIInterface::class.java)
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        requireContext().setTheme(R.style.Theme_Thridtech)
+        super.onCreate(savedInstanceState)
+    }
+
     override fun onCreateView( inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         mBinding = FragmentChatRoomBinding.inflate(inflater, container, false)
 
@@ -88,14 +93,14 @@ class chat_room : Fragment() {
 
                     var date = Date(updateDate.toLong() )
                     var formatDate = SimpleDateFormat("yyyy MM dd")
-                    var formatTime = SimpleDateFormat("hh mm")
+                    var formatTime = SimpleDateFormat("HH mm")
                     var resultDate = formatDate.format(date)
                     var resultTime = formatTime.format(date)
 
                     var roomYear = resultDate.split(" ").get(0)
                     var roomMonth = resultDate.split(" ").get(1)
                     var roomDay = resultDate.split(" ").get(2)
-                    var roomHour = resultTime.split(" ").get(0).toInt().plus(9)
+                    var roomHour = resultTime.split(" ").get(0).toInt()
                     var showTime : String? = null
                     if (roomHour >= 24) {
                         showTime = roomHour.minus(24).toString()

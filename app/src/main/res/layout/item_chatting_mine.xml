@@ -68,7 +68,8 @@
                     android:textColor="#fff"
                     android:textSize="14sp"
                     android:textStyle="bold"
-                    android:text="contents"/>
+                    android:text="contents"
+                    android:maxWidth="220dp"/>
 
             </androidx.cardview.widget.CardView>
 
@@ -81,7 +82,7 @@
                 android:textSize="12sp"
                 android:layout_marginLeft="10dp"
                 android:textColor="#C6C7CD"
-                android:layout_gravity="center_vertical"/>
+                android:layout_gravity="bottom"/>
 
         </LinearLayout>
     </LinearLayout>

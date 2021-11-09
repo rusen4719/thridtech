@@ -40,6 +40,7 @@ class MakeChatRoom : AppCompatActivity() {
     var myId = Preferences.prefs.getString("MyID", null.toString())
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.Theme_Thridtech)
         super.onCreate(savedInstanceState)
         //setContentView(R.layout.activity_make_chat_room)
         mBinding = ActivityMakeChatRoomBinding.inflate(layoutInflater)

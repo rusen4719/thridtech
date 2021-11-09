@@ -6,8 +6,10 @@ import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import com.bumptech.glide.Glide
 import com.google.gson.JsonObject
 import org.techtown.thridtech.databinding.ActivityCreateAccountBinding
 import org.techtown.thridtech.databinding.ActivityFriendsAddBinding
@@ -25,6 +27,7 @@ class Friends_add : AppCompatActivity() {
     val url = "https://chatdemo2121.herokuapp.com/"
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.Theme_Thridtech)
         super.onCreate(savedInstanceState)
         //setContentView(R.layout.activity_friends_add)
         mBinding = ActivityFriendsAddBinding.inflate(layoutInflater)
@@ -58,10 +61,14 @@ class Friends_add : AppCompatActivity() {
                             val id = it.asJsonObject.get("user_id").asString
                             val profile = it.asJsonObject.get("profile_img_url").asString
 
+                            Log.d("TAG", "profile " + profile)
+
                             Preferences.prefs.setString("add_frd_name", name)
                             Preferences.prefs.setString("add_frd_id", id)
 
+                            Glide.with(applicationContext).load(profile).into(binding.image)
                             binding.frdAddName.text = name
+
                         }
                     } else {
                         binding.frdAddMainLayout.visibility = View.INVISIBLE

@@ -30,6 +30,11 @@ class settings : Fragment() {
     lateinit var adapter: Adapter_Settings
     val datas = mutableListOf<Data_settings>()
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        requireActivity().setTheme(R.style.Theme_Thridtech)
+        super.onCreate(savedInstanceState)
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         mBinding = FragmentSettingsBinding.inflate(inflater, container, false)
 

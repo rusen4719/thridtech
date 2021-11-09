@@ -70,6 +70,7 @@ class ChangeMyProfile : AppCompatActivity() {
     var input : String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.Theme_Thridtech)
         super.onCreate(savedInstanceState)
         //setContentView(R.layout.activity_change_my_profile2)
         mBinding = ActivityChangeMyProfileBinding.inflate(layoutInflater)

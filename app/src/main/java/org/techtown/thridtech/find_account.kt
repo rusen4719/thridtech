@@ -20,6 +20,7 @@ var selected = 0
 
 class find_account : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.Theme_Thridtech)
         super.onCreate(savedInstanceState)
         //setContentView(R.layout.activity_find_account)
         mBinding = ActivityFindAccountBinding.inflate(layoutInflater)

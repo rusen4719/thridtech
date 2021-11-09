@@ -2,10 +2,13 @@ package org.techtown.thridtech
 
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.WindowInsets
+import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import android.webkit.URLUtil
 import android.widget.TextView
@@ -28,12 +31,11 @@ class LoginActivity : AppCompatActivity() {
     val url = "https://chatdemo2121.herokuapp.com"
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.Theme_Thridtech)
         super.onCreate(savedInstanceState)
         //setContentView(R.layout.activity_login)
         mBinding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        Log.d("TAG", "myId : " + Preferences.prefs.getString("MyID", "없음"))
 
         if(!Preferences.prefs.getString("MyID","").isNullOrEmpty()) {
             val intent = Intent(this, Home::class.java)
@@ -111,7 +113,12 @@ class LoginActivity : AppCompatActivity() {
                     }
 
                     override fun onFailure(call: Call<Login>, t: Throwable) {
-                        Log.d("TAG", "fail")
+                        text.text="입력정보를 다시 확인해주세요."
+
+                        var toast = Toast(applicationContext)
+                        toast.view = layoutInflater
+                        toast.setGravity(0,0,0)
+                        toast.show()
                     }
                 })
             }
