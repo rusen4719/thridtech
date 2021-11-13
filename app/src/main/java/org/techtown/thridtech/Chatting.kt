@@ -30,6 +30,7 @@ import com.google.android.youtube.player.YouTubeBaseActivity
 import com.google.android.youtube.player.YouTubeInitializationResult
 import com.google.android.youtube.player.YouTubePlayer
 import com.google.android.youtube.player.YouTubePlayerView
+import com.google.android.youtube.player.internal.e
 import com.google.android.youtube.player.internal.i
 import com.google.android.youtube.player.internal.y
 import retrofit2.Call
@@ -46,7 +47,9 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import org.json.JSONObject
 import java.io.File
+import java.lang.RuntimeException
 import java.net.URISyntaxException
+import java.net.URL
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -241,12 +244,33 @@ class Chatting : YouTubeBaseActivity()  {
             }
         } else if (URLUtil.isValidUrl(message.toString())) {
 
-            if (message.toString().contains("youtube.com/watch")){
+            if(message.toString().contains("naver.com")||
+                message.toString().contains("google.com")||
+                message.toString().contains("daum.net")||
+                message.toString().contains("youtube.com")  ) {
+
+                CoroutineScope(Dispatchers.Main).launch {
+                    CoroutineScope(Dispatchers.Default).async {
+
+                    }.await()
+                    datas.apply {
+                        add(Data_chatting_basic(name = name, contents = message.toString()
+                            , timedate = showTime, type = type!!, image = url))
+                    }
+
+                    adapter.datas = datas
+                    adapter.notifyDataSetChanged()
+                    binding.recycler.adapter = adapter
+
+                    binding.recycler.scrollToPosition(adapter.datas.size-1)
+
+                }
 
             } else {
                 type = multi_type4
                 showImage(name, message.toString(), showTime, type, url)
             }
+
         } else {
             CoroutineScope(Dispatchers.Main).launch {
                 CoroutineScope(Dispatchers.Default).async {
@@ -350,6 +374,7 @@ class Chatting : YouTubeBaseActivity()  {
                 val myId = Preferences.prefs.getString("MyID","null")
 
                 response.body()?.data?.forEach {
+                    Log.d("TAG", "onResponse: " + it.message.toString())
                     if (it.send_user_id == myId){
                         type = multi_type2
                     } else {
@@ -367,26 +392,51 @@ class Chatting : YouTubeBaseActivity()  {
                     var showTime = sendTime(it.createdat.toString())
 
                     try {
-                        if (URLUtil.isValidUrl(it.message.toString())){
-                            if (it.message.toString().contains("youtube.com/watch") ||
-                                it.message.toString().contains("youtu.be/") ||
-                                it.message.toString().contains("youtube.com/shorts/")) {
+                        if (it.message.toString().contains("youtube.com/watch") ||
+                            it.message.toString().contains("youtu.be/") ||
+                            it.message.toString().contains("youtube.com/shorts/")) {
+
+                            var youtubeId = ""
+                            if (it.message.toString().contains("youtube.com/watch")) {
+                                youtubeId = it.message.toString().split("=").get(1).substring(0,11)
+                            } else if(it.message.toString().contains("youtu.be/")) {
+                                youtubeId = it.message.toString().split("youtu.be/").get(1).substring(0,11)
+                            } else if(it.message.toString().contains("youtube.com/shorts/")) {
+                                youtubeId = it.message.toString().split("youtube.com/shorts/").get(1).substring(0,11)
+                            }
+
+                            playVideo(youtubeId)
+
+                            datas.apply {
+                                add(Data_chatting_basic(name = name, contents = it.message.toString()
+                                    , timedate = showTime, type = type!!, image = url))
+                            }
+                        } else if (URLUtil.isValidUrl(it.message.toString())) {
+                            if(it.message.toString().contains("naver.com")||
+                                it.message.toString().contains("google.com")||
+                                it.message.toString().contains("daum.net")||
+                                it.message.toString().contains("youtube.com")){
 
                                 datas.apply {
                                     add(Data_chatting_basic(name = name, contents = it.message.toString()
                                         , timedate = showTime, type = type!!, image = url))
                                 }
-                            } else {
+                            }else {
                                 datas.apply {
-                                    add(Data_chatting_basic(name = name, contents = it.message.toString()
-                                        , timedate = showTime, type = multi_type4, image = url))
+                                    add(Data_chatting_basic(name = name,
+                                        contents = it.message.toString(),
+                                        timedate = showTime,
+                                        type = multi_type4,
+                                        image = url))
                                 }
                             }
-
                         } else {
                             datas.apply {
-                                add(Data_chatting_basic(name = name, contents = it.message.toString()
-                                    , timedate = showTime, type = type!!, image = url))
+                                add(Data_chatting_basic(name = name,
+                                    contents = it.message.toString(),
+                                    timedate = showTime,
+                                    type = type!!,
+                                    image = url))
                             }
                         }
                     }catch (e: Exception) {

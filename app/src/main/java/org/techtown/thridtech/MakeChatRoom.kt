@@ -93,9 +93,15 @@ class MakeChatRoom : AppCompatActivity() {
 
                 server?.makeChatRoom(jsonObj)?.enqueue(object : Callback<MakeChatRooms> {
                     override fun onResponse(call: Call<MakeChatRooms>, response: Response<MakeChatRooms>) {
-                        Log.d("TAG", response.body()?.data.toString())
-                        Log.d("TAG", response.body()?.msg.toString())
-                        Log.d("TAG", "연결됨")
+                        var layoutInflater = LayoutInflater.from(applicationContext).inflate(R.layout.view_holder_toast,null)
+                        var text : TextView = layoutInflater.findViewById(R.id.textViewToast)
+
+                        text.text = response.body()?.msg.toString()
+
+                        var toast = Toast(applicationContext)
+                        toast.view = layoutInflater
+                        toast.setGravity(0, 0, 0)
+                        toast.show()
                     }
 
                     override fun onFailure(call: Call<MakeChatRooms>, t: Throwable) {

@@ -33,6 +33,9 @@ class Friends_add : AppCompatActivity() {
         mBinding = ActivityFriendsAddBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        var searchFrd = mutableListOf<JsonObject>()
+        var searchIndex = 0
+
         binding.btnBack.setOnClickListener { finish() }
 
         var layoutInflater = LayoutInflater.from(applicationContext).inflate(R.layout.view_holder_toast,null)
@@ -61,15 +64,41 @@ class Friends_add : AppCompatActivity() {
                             val id = it.asJsonObject.get("user_id").asString
                             val profile = it.asJsonObject.get("profile_img_url").asString
 
-                            Log.d("TAG", "profile " + profile)
+                            searchFrd.add(it.asJsonObject)
 
-                            Preferences.prefs.setString("add_frd_name", name)
+/*                            Preferences.prefs.setString("add_frd_name", name)
                             Preferences.prefs.setString("add_frd_id", id)
 
                             Glide.with(applicationContext).load(profile).into(binding.image)
-                            binding.frdAddName.text = name
-
+                            binding.frdAddName.text = name*/
                         }
+                        Glide.with(applicationContext).load(searchFrd[searchIndex].get("profile_img_url").asString).into(binding.image)
+                        binding.frdAddName.text = searchFrd[searchIndex].get("name").asString
+
+                        binding.frdPrevious.setOnClickListener {
+                            if (searchIndex > 0) {
+                                searchIndex--
+                            }
+                            if (searchIndex == 0) {
+                                binding.frdPrevious.isEnabled = false
+                                binding.frdNext.isEnabled = true
+                            }
+                            Glide.with(applicationContext).load(searchFrd[searchIndex].get("profile_img_url").asString).into(binding.image)
+                            binding.frdAddName.text = searchFrd[searchIndex].get("name").asString
+                        }
+
+                        binding.frdNext.setOnClickListener {
+                            if (searchIndex >= 0 && searchIndex < searchFrd.size) {
+                                searchIndex++
+                            }
+                            if (searchIndex == searchFrd.size-1) {
+                                binding.frdNext.isEnabled = false
+                                binding.frdPrevious.isEnabled = true
+                            }
+                            Glide.with(applicationContext).load(searchFrd[searchIndex].get("profile_img_url").asString).into(binding.image)
+                            binding.frdAddName.text = searchFrd[searchIndex].get("name").asString
+                        }
+
                     } else {
                         binding.frdAddMainLayout.visibility = View.INVISIBLE
                         text.text = "존재하지 않는 이름입니다."
@@ -89,9 +118,10 @@ class Friends_add : AppCompatActivity() {
         }
 
         binding.btnFrdAdd.setOnClickListener {
-            val frdSearchName = binding.edtFrdId.text.toString()
-            val frdName = Preferences.prefs.getString("add_frd_name", "no name")
-            val frdId = Preferences.prefs.getString("add_frd_id", "no id")
+            val frdName = searchFrd[searchIndex].get("name").asString
+            //val frdName = Preferences.prefs.getString("add_frd_name", "no name")
+            val frdId = searchFrd[searchIndex].get("user_id").asString
+            //val frdId = Preferences.prefs.getString("add_frd_id", "no id")
             val myId = Preferences.prefs.getString("MyID", "no myId")
 
             var bool : Boolean? = null
@@ -116,11 +146,12 @@ class Friends_add : AppCompatActivity() {
 
                     response.body()?.data?.asJsonArray?.forEach {
 
-                        val name = it.asJsonObject.get("name").asString
-                        if (name == frdSearchName){
+                        val id = it.asJsonObject.get("user_id").asString
+                        if (id == frdId){
                             bool = true
                         }
                     }
+
                     if (bool == true) {
                         text.text = "이미 있는 친구입니다."
 

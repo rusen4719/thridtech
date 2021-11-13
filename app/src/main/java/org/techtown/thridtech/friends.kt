@@ -9,7 +9,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.URLUtil
+import androidx.core.net.UriCompat
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.model.stream.UrlLoader
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import org.json.JSONArray
@@ -20,6 +23,8 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.net.URI
+import java.net.URL
 
 private var mBinding: FragmentFriendsBinding? = null
 private val binding get() = mBinding!!
@@ -92,6 +97,7 @@ class friends : Fragment() {
                     val status = it.asJsonObject.get("status_msg").asString
 
                     Preferences.prefs.setString(id+"_name", name)
+                    Preferences.prefs.setString(id+"user_id", id)
 
                         datas.apply {
                             if(profile.isNullOrEmpty()) {
