@@ -94,6 +94,9 @@ class LoginActivity : AppCompatActivity() {
 
                 server?.login(jsonObj)?.enqueue(object :Callback<Login>{
                     override fun onResponse(call: Call<Login>, response: Response<Login>) {
+                        binding.loginEdtAddress.text?.clear()
+                        binding.loginEdtPassword.text?.clear()
+
                         startActivity(intent)
 
                         var myId = response.body()?.data?.get("user_id")!!.asString
