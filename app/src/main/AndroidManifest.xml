@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="org.techtown.thridtech">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -23,6 +24,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Thridtech"
         android:usesCleartextTraffic="true">
+        <receiver android:name=".Chatting$BroadcastReceiver"
+            tools:ignore="Instantiatable"
+            android:enabled="true"
+            android:exported="true"/>
         <activity
             android:name=".Chatting"
             android:exported="false" />

@@ -3,7 +3,12 @@ package org.techtown.thridtech
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
@@ -93,12 +98,18 @@ class Chatting : YouTubeBaseActivity()  {
     var youtubeView : YouTubePlayerView? = null
     var youtubePlayer : YouTubePlayer? = null
 
+    var mReceiver = BroadcastReceiver()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.Theme_Thridtech)
         super.onCreate(savedInstanceState)
         //setContentView(R.layout.activity_chatting)
         mBinding = ActivityChattingBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        var filter = IntentFilter()
+        filter.addAction(Intent.ACTION_DATE_CHANGED)
+        registerReceiver(mReceiver, filter)
 
         youtubeView = findViewById<YouTubePlayerView>(R.id.youtube_player)
 
@@ -111,30 +122,6 @@ class Chatting : YouTubeBaseActivity()  {
         binding.btnBack.setImageResource(R.drawable.ic_baseline_arrow_back_24)
 
         requestPermission()
-
-        val highNoon = Calendar.getInstance()
-        highNoon.set(Calendar.HOUR_OF_DAY,24)
-        highNoon.set(Calendar.MINUTE,0)
-        highNoon.set(Calendar.SECOND,1)
-
-        val timer = Timer()
-        timer.schedule(object : TimerTask() {
-            override fun run() {
-
-                var posixTime = System.currentTimeMillis()
-                var date = Date(posixTime)
-                var formatDate = SimpleDateFormat("yyyy년 MM월 dd일")
-                var resultDate = formatDate.format(date)
-
-                datas.apply {
-                    add(Data_chatting_basic(name = "", contents = ""
-                        , timedate = resultDate, type = multi_type3, image = ""))
-                }
-                adapter.datas = datas
-                adapter.notifyDataSetChanged()
-                binding.recycler.adapter = adapter
-            }
-        },highNoon.time)
 
         if (intent.hasExtra("title")) {
             binding.title.text = intent.getStringExtra("title")
@@ -211,8 +198,21 @@ class Chatting : YouTubeBaseActivity()  {
         } else {
             type = multi_type1
         }
+        if(message.toString() == "DATE_CHANGED") {
+                var posixTime = System.currentTimeMillis()
+                var date = Date(posixTime)
+                var formatDate = SimpleDateFormat("yyyy년 MM월 dd일")
+                var resultDate = formatDate.format(date)
 
-        if (message.toString().contains("youtube.com/watch")||
+                datas.apply {
+                    add(Data_chatting_basic(name = "", contents = ""
+                        , timedate = resultDate, type = multi_type3, image = ""))
+                }
+                adapter.datas = datas
+                adapter.notifyDataSetChanged()
+                binding.recycler.adapter = adapter
+                binding.recycler.scrollToPosition(adapter.datas.size-1)
+        } else if (message.toString().contains("youtube.com/watch")||
             message.toString().contains("youtu.be/")||
             message.toString().contains("youtube.com/shorts/")) {
             var youtubeId = ""
@@ -291,6 +291,21 @@ class Chatting : YouTubeBaseActivity()  {
         }
     }
 
+    inner class BroadcastReceiver : android.content.BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if(Intent.ACTION_DATE_CHANGED == intent!!.action) {
+                Log.d("TAG", "알림")
+               /* var messageObj = JSONObject()
+                messageObj.put("room_id", room_id)
+                messageObj.put("send_user_id", myId)
+                messageObj.put("message", "DATE_CHANGED")
+                messageObj.put("not_read", 1)
+
+                mSocket.emit("message", messageObj)*/
+            }
+        }
+    }
+
     fun initPlayer() {
         youtubeView?.initialize("chatting", object : YouTubePlayer.OnInitializedListener {
             override fun onInitializationSuccess(
@@ -345,21 +360,33 @@ class Chatting : YouTubeBaseActivity()  {
 
     fun sendTime(time : String) : String {
         var date = Date(time.toLong())
-        var formatTime = SimpleDateFormat("HH mm")
-        var resultTime = formatTime.format(date)
+        var currentDate = System.currentTimeMillis()
 
-        var roomHour = resultTime.split(" ").get(0).toInt()
-        var roomMinute = resultTime.split(" ").get(1)
-        var showTime : String? = null
-/*        if (roomHour >= 24) {
-            showTime = roomHour.minus(24).toString()
-        } else {
-            showTime = roomHour.toString()
-        }*/
+        var foramtDate = SimpleDateFormat("MM dd HH mm")
+        var formatCurrent = SimpleDateFormat("MM dd HH mm")
 
-        var returnTime = roomHour.toString()+"시 " + roomMinute + "분"
+        var resultDate = foramtDate.format(date)
+        var resultCurrent = formatCurrent.format(currentDate)
 
-        return returnTime
+        var roomMonth = resultDate.split(" ").get(0)
+        var roomDay = resultDate.split(" ").get(1)
+        var roomHour = resultDate.split(" ").get(2).toInt()
+        var roomMinute = resultDate.split(" ").get(3)
+
+        var returnTime : String? = null
+
+        if (resultCurrent.split(" ").get(0) == resultDate.split(" ").get(0) &&
+                resultCurrent.split(" ").get(1) == resultDate.split(" ").get(1)) {
+            returnTime = roomHour.toString()+"시 " + roomMinute + "분"
+        } else if (resultCurrent.split(" ").get(0) == resultDate.split(" ").get(0) &&
+            resultCurrent.split(" ").get(1) != resultDate.split(" ").get(1)) {
+            returnTime = roomDay+"일 " + roomHour.toString()+"시 " + roomMinute + "분"
+        } else if (resultCurrent.split(" ").get(0) != resultDate.split(" ").get(0) &&
+            resultCurrent.split(" ").get(1) != resultDate.split(" ").get(1)) {
+            returnTime = roomMonth+"월 " + roomDay+"일 " + roomHour.toString()+"시 " + roomMinute + "분"
+        }
+
+        return returnTime.toString()
     }
 
     fun callChats() {
@@ -374,7 +401,6 @@ class Chatting : YouTubeBaseActivity()  {
                 val myId = Preferences.prefs.getString("MyID","null")
 
                 response.body()?.data?.forEach {
-                    Log.d("TAG", "onResponse: " + it.message.toString())
                     if (it.send_user_id == myId){
                         type = multi_type2
                     } else {
@@ -392,7 +418,17 @@ class Chatting : YouTubeBaseActivity()  {
                     var showTime = sendTime(it.createdat.toString())
 
                     try {
-                        if (it.message.toString().contains("youtube.com/watch") ||
+                        if(it.message.toString() == "DATE_CHANGED") {
+                            var posixTime = System.currentTimeMillis()
+                            var date = Date(posixTime)
+                            var formatDate = SimpleDateFormat("yyyy년 MM월 dd일")
+                            var resultDate = formatDate.format(date)
+
+                            datas.apply {
+                                add(Data_chatting_basic(name = "", contents = ""
+                                    , timedate = resultDate, type = multi_type3, image = ""))
+                            }
+                        } else if (it.message.toString().contains("youtube.com/watch") ||
                             it.message.toString().contains("youtu.be/") ||
                             it.message.toString().contains("youtube.com/shorts/")) {
 
@@ -441,6 +477,8 @@ class Chatting : YouTubeBaseActivity()  {
                         }
                     }catch (e: Exception) {
                     }
+
+                    posixTime
                     adapter.datas = datas
                     adapter.notifyDataSetChanged()
                     binding.recycler.adapter = adapter
@@ -531,5 +569,6 @@ class Chatting : YouTubeBaseActivity()  {
         mBinding = null
         super.onDestroy()
         mSocket.disconnect()
+        unregisterReceiver(mReceiver)
     }
 }

@@ -1,10 +1,14 @@
 package org.techtown.thridtech
 
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.SystemClock
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.WindowInsets
@@ -15,6 +19,7 @@ import android.widget.TextView
 import android.widget.Toast
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import min.dev.singleclick.mingSingleClickListener
 import org.techtown.thridtech.databinding.ActivityLoginBinding
 import retrofit2.Call
 import retrofit2.Callback
@@ -59,8 +64,7 @@ class LoginActivity : AppCompatActivity() {
             val intent = Intent(this, find_account::class.java)
             startActivity(intent)
         }
-
-        binding.loginBtnSignIn.setOnClickListener {
+        binding.loginBtnSignIn.mingSingleClickListener(1000) {
 
             val edtId = binding.loginEdtAddress
             val edtPwd = binding.loginEdtPassword
@@ -90,9 +94,6 @@ class LoginActivity : AppCompatActivity() {
 
                 server?.login(jsonObj)?.enqueue(object :Callback<Login>{
                     override fun onResponse(call: Call<Login>, response: Response<Login>) {
-                        binding.loginEdtAddress.text?.clear()
-                        binding.loginEdtPassword.text?.clear()
-
                         startActivity(intent)
 
                         var myId = response.body()?.data?.get("user_id")!!.asString
@@ -109,8 +110,6 @@ class LoginActivity : AppCompatActivity() {
                         } else {
                             Preferences.prefs.setString(myId+"_url", myUrl.toString())
                         }
-
-                        Log.d("TAG", "url : " + URLUtil.isValidUrl("http:://www.naver.com").toString())
 
                         Preferences.prefs.setString("MyObjectId", myObjectID.toString())
                     }

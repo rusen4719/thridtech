@@ -27,7 +27,6 @@ class Home : AppCompatActivity() {
     private val fragmentThree by lazy { settings() }
     private val fragments: List<Fragment> = listOf( fragmentOne, fragmentTwo, fragmentThree )
 
-
     private val pagerAdapter: MainViewPagerAdapter by lazy { MainViewPagerAdapter(this, fragments) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,7 +47,7 @@ class Home : AppCompatActivity() {
 
 
     private fun initNavigationBar() {
-        binding.bottomNav.setItemSelected(R.id.chat_room, true)
+        binding.bottomNav.setItemSelected(R.id.friends, true)
 
         binding.bottomNav.run {
             setOnItemSelectedListener {
@@ -75,7 +74,7 @@ class Home : AppCompatActivity() {
                         0 -> R.id.friends
                         1 -> R.id.chat_room
                         2 -> R.id.settings
-                        else -> R.id.chat_room
+                        else -> R.id.friends
                     }
                     if (binding.bottomNav.getSelectedItemId() != navigation) {
                         binding.bottomNav.setItemSelected(navigation)
@@ -83,6 +82,10 @@ class Home : AppCompatActivity() {
                 }
             })
         }
+    }
+
+    override fun onBackPressed() {
+        //super.onBackPressed()
     }
 
     override fun onDestroy() {
