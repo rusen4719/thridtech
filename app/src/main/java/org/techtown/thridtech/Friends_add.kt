@@ -42,6 +42,8 @@ class Friends_add : AppCompatActivity() {
         var text : TextView = layoutInflater.findViewById(R.id.textViewToast)
 
         binding.btnFrdSearch.setOnClickListener {
+            searchFrd.clear()
+            searchIndex = 0
             val frdSearchName = binding.edtFrdId.text.toString()
 
             val retrofit = Retrofit.Builder()
@@ -66,20 +68,23 @@ class Friends_add : AppCompatActivity() {
 
                             searchFrd.add(it.asJsonObject)
 
-/*                            Preferences.prefs.setString("add_frd_name", name)
-                            Preferences.prefs.setString("add_frd_id", id)
-
-                            Glide.with(applicationContext).load(profile).into(binding.image)
-                            binding.frdAddName.text = name*/
                         }
                         Glide.with(applicationContext).load(searchFrd[searchIndex].get("profile_img_url").asString).into(binding.image)
                         binding.frdAddName.text = searchFrd[searchIndex].get("name").asString
+
+                        if(searchFrd.size == 1) {
+                            binding.frdPrevious.isEnabled = false
+                            binding.frdNext.isEnabled = false
+                        } else {
+                            binding.frdPrevious.isEnabled = false
+                            binding.frdNext.isEnabled = true
+                        }
 
                         binding.frdPrevious.setOnClickListener {
                             if (searchIndex > 0) {
                                 searchIndex--
                             }
-                            if (searchIndex == 0) {
+                            if (searchIndex == 0 ) {
                                 binding.frdPrevious.isEnabled = false
                                 binding.frdNext.isEnabled = true
                             }
